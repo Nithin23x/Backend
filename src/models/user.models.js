@@ -46,15 +46,22 @@ const userSchema = new mongoose.Schema({
 
 },{timestamps:true})
 
-userSchema.pre("save", async function(next) { // we are not using arrow func beacuse they do not have this access 
-    if(!this.isModified("password")) return next()
+userSchema.pre("save", async function(next) { // we are not using arrow func beacuse they do not have "this" access 
+    // "pre" hook is used to perform operations just before the data goes into the database it has first paramters like save,
+    //createone,validate,updateone etc.Here save is pre-defined operation 
+    
+    //here we are hasing the password with bcrypt library 
 
-    this.password = bcrypt.hash(this.password,10)
+    if(!this.isModified("password")) return next() 
+
+    this.password = bcrypt.hash(this.password,10) //hasing the password 
     next()
 })
 
+//.methods allows to write user-defined functions 
+
 userSchema.methods.isPasswordCorrect = async function(password) {
-   await bcrypt.compare(password,this.password)
+   await bcrypt.compare(password,this.password) //comparing passwords 
 }
 
 userSchema.methods.generateAccessToken = function() {

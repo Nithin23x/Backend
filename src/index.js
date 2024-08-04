@@ -18,6 +18,9 @@ dotenv.config({
 
 connectDB()
 .then(()=>{
+    app.get('/',(req,res) =>{
+        res.send("Hello")
+    })
     app.listen(process.env.PORT||9000,() =>{
         console.log('Server is up and running');
     })
