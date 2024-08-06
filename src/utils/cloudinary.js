@@ -1,5 +1,4 @@
 import { v2 as cloudinary } from "cloudinary";
-import { log } from "console";
 import fs from 'fs' // file system module 
 
 cloudinary.config({ 
@@ -8,7 +7,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET // Click 'View Credentials' below to copy your API secret
 });
 
-//cloudinary takes the file from user and uplaods into their server "basic approcah "
+//cloudinary takes the file from user and uplaods into their server.this is  "basic approcah "
 
 //multer is used to access the disk storage.With the help of multer,file uploaded by user and it will be saved to local server 
 //then cloudinary takes the files from  local-server and stores it 

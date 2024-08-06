@@ -1,15 +1,17 @@
-import mongoose from "mongoose";
+import mongoose from "mongoose"; //mongoDB for javascript 
 import { DB_NAME } from "../constants.js"; 
 
 // checking the import statements is also important sometimes we need to give full naming conventions 
 // like './constants' to './constants.js'  and './db' to './db.index.js' 
 
-//for DB connection two things : 1.async 2.try-catch 
+//for DB connection we need two things : 1.async 2.try-catch 
+
 //for DB connection we can use wrapper functions to make them re-usable in utils folder
 
 const connectDB = async () =>{
     try {
-       const connectResponse =  await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`)
+       const connectResponse =  await mongoose.connect(`${process.env.MONGODB_URL}/${DB_NAME}`) 
+       //mongoDB url for connection to Mongo Atlas interface with DB name 
        console.log(`MongoDB is connected ${connectResponse.connection.host} \n`)
        console.log(`DB name ${connectResponse.connection.name}`)
     } catch (error) {

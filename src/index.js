@@ -1,6 +1,5 @@
-// IIFE (Immediately Invoked Function Expression) ;()()
 // Two important rules 1. Use try-catch for DB connection 
-//2.If DB is in another contient then use async blocks 
+//2.DB is in another contient then use "async" blocks 
 
 //  This is second approach it is proffessional and used.we import files from 
 //  another sources like DB_NAME,models etc 
@@ -8,9 +7,9 @@
 
 // "-r dotenv/config --experimental-json-modules" in "run dev" is important for loading env modules into code 
 
-import dotenv from 'dotenv'
+import dotenv from 'dotenv' //environment variables 
 import { connectDB } from "./db/index.js";
-import { app } from './app.js';
+import app from './app.js';
 
 dotenv.config({
     path:'./env'
@@ -18,9 +17,7 @@ dotenv.config({
 
 connectDB()
 .then(()=>{
-    app.get('/',(req,res) =>{
-        res.send("Hello")
-    })
+    
     app.listen(process.env.PORT||9000,() =>{
         console.log('Server is up and running');
     })
@@ -32,6 +29,7 @@ connectDB()
 
 
 // This is first approach for DB connection not so proffessional 
+// IIFE (Immediately Invoked Function Expression) ;()()
 //import express from "express";
 // const app = express() 
 // ;(

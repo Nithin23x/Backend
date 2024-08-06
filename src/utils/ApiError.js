@@ -3,7 +3,6 @@
 // Error class will be inherited and overridded 
 
 
-
 class ApiError extends Error {
     constructor(
         statusCode ,
