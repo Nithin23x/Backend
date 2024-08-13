@@ -1,7 +1,7 @@
 // This classs is defined for overriding the error by Error class 
 // and modified to our uses 
 // Error class will be inherited and overridded 
-
+ 
 
 class ApiError extends Error {
     constructor(

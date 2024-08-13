@@ -1,13 +1,27 @@
 import { Router } from "express";
-import  {noiceUser, registerUser}  from "../controllers/user.controller.js";
+import  { registerUser}  from "../controllers/user.controller.js";
+import { upload } from "../middlewares/multer.middleware.js";
 
 
 const router = Router() 
 
 //here the register route will be appended to users to the router will be /users/register and
 // registerUser controller will be triggered
-router.route("/register").get(registerUser)    
-router.route("/noice").post(noiceUser) 
+
+//to access the file uplad funtionality, we use multer's upload which is executes just
+//before the "registeruser" controller 
+
+router.route("/register").post(
+    upload.fields([
+        {
+            name:"avatar", maxCount:1
+        },
+        {
+            names:"coverImage" , maxCount:1
+        }
+    ]
+    ) ,
+    registerUser)   
 
 
 export default router  

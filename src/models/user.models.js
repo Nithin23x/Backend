@@ -27,12 +27,12 @@ const userSchema = new mongoose.Schema({
         trim:true,
         index:true
     },
-    avtar:{
-        type:string, //url  from third party 
+    avatar:{
+        type:String, //url  from third party 
         required:true
     },
-    coverimage:{
-        type:string, //url  from third party 
+    coverImage:{
+        type:String, //url  from third party 
     },
     history:[
         {
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
             ref:'Video'
         }
     ],
-    refreshTokens:{
+    refreshToken:{
         type:String
     }
 
@@ -54,7 +54,7 @@ userSchema.pre("save", async function(next) { // we are not using arrow func bea
 
     if(!this.isModified("password")) return next() 
 
-    this.password = bcrypt.hash(this.password,10) //hasing the password 
+    this.password = await bcrypt.hash(this.password,10) //hasing the password 
     next()
 })
 

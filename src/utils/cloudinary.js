@@ -18,7 +18,7 @@ const fileUpload = async(filepath) =>{
     try {
         if(!filepath) return 'Cannot find path '
 
-        const uploadResponse = await cloudinary.uploader.upload("https://files.porsche.com/filestore/image/multimedia/none/992-gt3-rs-modelexplorer/normal/c310eed8-1a15-11ed-80f5-005056bbdc38;sS;twebp/porsche-normal.webp",
+        const uploadResponse = await cloudinary.uploader.upload(filepath,
             {
                 resource_type:'auto',
             }

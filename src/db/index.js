@@ -4,8 +4,7 @@ import { DB_NAME } from "../constants.js";
 // checking the import statements is also important sometimes we need to give full naming conventions 
 // like './constants' to './constants.js'  and './db' to './db.index.js' 
 
-//for DB connection we need two things : 1.async 2.try-catch 
-
+//for DB connection we need two things : 1.async 2.try-catch. The DB connection takes time so its awaited, thus async is used 
 //for DB connection we can use wrapper functions to make them re-usable in utils folder
 
 const connectDB = async () =>{
