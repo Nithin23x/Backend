@@ -1,7 +1,7 @@
- import asyncHandler from '../utils/asyncHandler.js'
- import { ApiError } from '../utils/ApiError.js'
- import {ApiResponse} from '../utils/ApiResponse.js'
- import {User} from '../models/user.models.js'
+import asyncHandler from '../utils/asyncHandler.js'
+import { ApiError } from '../utils/ApiError.js'
+import {ApiResponse} from '../utils/ApiResponse.js'
+import {User} from '../models/user.models.js'
 import { fileUpload } from '../utils/cloudinary.js'
 
 
@@ -116,27 +116,27 @@ const loginUser = asyncHandler( async (req,res) =>{
 
     //1.Get the data 
     const {username,email,password} = req.body
-
     //2.username based login or email based login
-    if(!username || !email) {
-        throw ApiError(400,"Username or Email is required")
+    if(!(username || email)) {
+        throw new ApiError(400,"Username or Email is required")
     }
 
     //3.Find the user 
     const findUser =  await User.findOne({
-        $or : [{username}, {email}]  //or operation on username and email 
+        $or : [{username}, {email}]  //"or" operation on username and email 
     })
 
+    console.log(findUser) 
     if(!findUser) {
         throw ApiError(404, "User not found or does not exist")
     }
 
     //4.check the passowrd 
-    const passwordCheck = await findUser.isPasswordCorrect(password)
+    const passwordCheck = await findUser.isPasswordCorrect(password) 
 
     if(!passwordCheck) {
-        throw ApiError(401, "Incorrect password ")
-    }
+        throw new ApiError(401, "Incorrect password ")
+    } 
 
     //5.Generate access and refresh tokens 
     //we use access and refresh tokens many times. we are making them into reusablle methods
@@ -168,7 +168,35 @@ const loginUser = asyncHandler( async (req,res) =>{
 } )
     
 const logoutUser = asyncHandler( async(req,res) =>{
+    //To achieve the logout for a user we need to clear their cookies from the DB.(Access token , refresh token)
+    console.log(req.user) 
 
+    User.findByIdAndUpdate(
+        req.user._id ,
+        {
+            $set:{
+                refreshToken:undefined
+            }
+        },
+        {
+            new:true
+        }
+    ) //making refreshToken undefined in DB as the user is logging out 
+
+    const options = {
+        httpOnly:true,
+        secure:true
+    }
+
+    return res
+    .status(200)
+    .clearCookie("accessToken",options)
+    .clearCookie("refreshToken",options)
+    .json(
+        new ApiResponse(200,{},"User logged out.")
+    )
+
+    
 })
 
-export  {registerUser,loginUser}  
+export  {registerUser,loginUser,logoutUser}  

@@ -16,7 +16,7 @@ class ApiError extends Error {
         this.errors = errors
         this.data = null // data will be null in fail case 
         this.success = false 
-
+        
         if(stack) {
             this.stack = stack
         }

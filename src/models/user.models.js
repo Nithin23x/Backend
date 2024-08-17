@@ -61,7 +61,7 @@ userSchema.pre("save", async function(next) { // we are not using arrow func bea
 //.methods allows to write user-defined functions 
 
 userSchema.methods.isPasswordCorrect = async function(password) {
-   await bcrypt.compare(password,this.password) //comparing passwords 
+   return await bcrypt.compare(password,this.password) //comparing passwords 
 }
 
 userSchema.methods.generateAccessToken = function() {

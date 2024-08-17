@@ -11,7 +11,7 @@ app.use(cors({
     credentials:true // there are other methods alos ctrl+click
 }))
 
-app.use(express.json({limit:"500kb"})) //accepting json and limiting the json size to 16kb
+app.use(express.json({limit:"50kb"})) //accepting json and limiting the json size to 16kb
 app.use(express.urlencoded({extended:true,limit:'500kb'})) // url encoding 
 app.use(express.static('public')) // loading the assests from public folder 
 app.use(cookieParser()) // accessing cookies from client and perform CRUD operations
