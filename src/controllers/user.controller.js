@@ -4,6 +4,7 @@ import {ApiResponse} from '../utils/ApiResponse.js'
 import {User} from '../models/user.models.js'
 import { fileUpload } from '../utils/cloudinary.js'
 import jwt from 'jsonwebtoken'
+import mongoose, { mongo } from 'mongoose'
 
 
 // //In asyncHandler we directly send the function as paramter
@@ -257,4 +258,174 @@ const regenerateAccessToken = asyncHandler(async (req,res,next) =>{
 
 })
 
-export  {registerUser,loginUser,logoutUser,regenerateAccessToken}  
+const changeCurrentPassword = asyncHandler(async(req,res ) =>{
+    const {oldPassword,newPassword} = req.body
+
+    //checking the old password tru or not 
+    const user = await User.findById(req.user?._id)
+    const isPasswordCorrect = user.isPasswordCorrect(oldPassword)
+
+    if(!isPasswordCorrect) {
+        throw new ApiError(400,"Invalid Password")
+    }
+
+    user.password = newPassword
+    await user.save({validateBeforeSave:false})
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,{},"New Password set")
+    )
+})
+
+const getCurrentUser = asyncHandler(async (req,res ) =>{
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,req.user,"Current user fetched ") //req.user is coming from verifyJWT middleware
+    )
+})
+
+const updateAccountDetails = asyncHandler(async(req,res) =>{
+    //advice:- for any updates relating to files we need to 
+    //handle them in separate controllers to reduce the network bandwidth and faster,reliable upadates 
+
+    const {fullName,email} = req.body
+
+    if(!(fullName || email )){
+        throw new ApiError(400,"All fields are required ")
+    }
+
+    const updatedUser = User.findByIdAndUpdate(
+        req.user?._id,
+        {
+            $set:{
+                fullName,email
+            }
+        },
+        {
+            new:true  //this will enable the new savings made to the user
+        }
+    ).select("-password")
+
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200,updatedUser,"Account updated Successfully")
+    )
+})
+
+const getUserChannelProfile = asyncHandler(async(req,res) =>{
+    const {username} = req.params
+
+    if(!username?.trim()){
+        throw new ApiError(400,"User does not exist ")
+    }
+
+     //aggregrating on the user 
+        const userChannel = await User.aggregate([
+            {
+                $match:{
+                username:username?.toLowerCase()
+                }
+            },
+            {
+                $lookup:{
+                    from:"subscriptions",
+                    localField:"_id",
+                    foreignField: "channel", // this lookup is to find the subscribers of a user/channel
+                    as:"subscribers"
+                }
+            },
+            {
+                $lookup:{
+                    from:"subscriptions",
+                    localField:"_id",
+                    foreignField:"subscriber", //this lookup is to find how many channel(s) does a user subscribed
+                    as:"subscribedChannels"
+
+                }
+            },
+            {
+                $addFields:{
+                    subscriberCount: {
+                        $size:"$subscribers"
+                    },
+                    subscribedChannels:{
+                        $size:"$subscribedChannels"
+                    },
+                    isSubscribed:{
+                        $cond: {
+                            if:{$in: [req.user?._id,,"$subscribers.subscriber"]},
+                            then:true,
+                            else:false
+                        }
+                    }
+                }
+            },
+            {
+                $project:{
+                    fullName:1,
+                    username:1,
+                    subscriberCount:1,
+                    isSubscribed:1,
+                    subscribedChannels:1,
+                    avatar:1,
+                    coverImage:1,
+                    email:1,
+                }
+            }
+        ])
+
+     if(!userChannel) {
+        throw new ApiError(404,"Channel does not exist")
+     }
+     console.log(userChannel) 
+
+     return res
+     .status(200)
+     .json(
+        new ApiResponse(200,userChannel,"User Channel fetched")
+     )
+     
+})
+
+const getUserHistory = asyncHandler(async() =>{
+    const history = await User.aggregate([
+        {
+            $match:{
+                _id:new mongoose.Types.ObjectId(req.user._id)
+            }
+        },
+        {
+            $lookup:{
+                from:"videos",
+                localField:"watchHistory",
+                foreignField:"_id",
+                as:"watchHistory",
+                pipeline:[
+                    {
+                        $lookup:{
+                            from:"users",
+                            localField:"owner",
+                            foreignField:"_id",
+                            as:"owner",
+                            pipeline:[
+                                {
+                                    $project:{
+                                        fullName:1,
+                                        username:1,
+                                        avatar:1 
+                                    }
+                                }
+                            ]
+                        }
+                    }  
+                ]
+            }
+        }
+    ])
+})
+
+export  {registerUser,loginUser,logoutUser,regenerateAccessToken,getUserChannelProfile,changeCurrentPassword,getCurrentUser,getUserHistory,updateAccountDetails}  
